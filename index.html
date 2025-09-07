@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CCNA 200-301 Intensive Checklist</title>
+  <meta name="description" content="A high-quality dark themed CCNA 200-301 (v1.1) knowledge-check checklist web app with progress tracking, search, export/import, and tips." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --bg-elev: #0f1624;
+      --panel: #151c2f;
+      --text: #e5f0ff;
+      --muted: #a7b0c3;
+      --accent: #06b6d4; /* cyan */
+      --accent-2: #7c3aed; /* violet */
+      --good: #22c55e;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --border: #1e293b;
+      --chip: #0f2138;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --radius-xs: 9px;
+    }
+    *{box-sizing:border-box}
+    html, body { height:100%; }
+    body {
+      margin:0; background: radial-gradient(1200px 600px at 70% -10%, #10243b 0%, var(--bg) 35%), var(--bg);
+      color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.45; letter-spacing:.2px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    header {
+      position: sticky; top:0; z-index: 1000; background: rgba(11,15,23,.75); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .wrap { max-width:1200px; margin:0 auto; padding: 18px 22px; }
+    .hero {
+      display:flex; gap:20px; align-items:center; justify-content:space-between;
+    }
+    .title {
+      display:flex; gap:14px; align-items:center;
+    }
+    .logo { width:48px; height:48px; border-radius:14px; background: linear-gradient(145deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow); display:grid; place-items:center; }
+    .logo svg { width:26px; height:26px; fill:white; }
+    h1 { font-size: clamp(22px, 3vw, 28px); margin:0; font-weight:800; letter-spacing:.3px; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top:4px; }
+    .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .control {
+      background: var(--panel); border:1px solid var(--border); color:var(--text);
+      padding: 10px 14px; border-radius: var(--radius-sm);
+      display:flex; align-items:center; gap:10px; cursor:pointer; box-shadow: var(--shadow);
+      transition: transform .06s ease, border-color .2s ease;
+    }
+    .control:hover { transform: translateY(-1px); border-color: #2b3b55; }
+    .control input[type="file"]{ display:none; }
+    .control.mod {
+      background: linear-gradient(180deg, #16233b, #0f1a2e);
+    }
+    .control .kbd { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; background:#0d1a2b; padding: 3px 6px; border-radius:6px; border:1px solid #20314f; color:#a8ccff; }
+
+    /* Main layout */
+    .grid { display:grid; grid-template-columns: 320px 1fr; gap:20px; align-items:start; padding:24px 22px; max-width:1200px; margin: 0 auto; }
+    @media (max-width: 980px){ .grid { grid-template-columns: 1fr; } }
+
+    aside { position:sticky; top:82px; background: var(--panel); border:1px solid var(--border); border-radius: var(--radius); padding:18px; box-shadow: var(--shadow); }
+    .stats { display:grid; gap:12px; }
+    .progress {
+      background: linear-gradient(180deg, #0c1322, #0a1324); border:1px solid var(--border); border-radius: 14px; padding:14px;
+    }
+    .progress h3 { margin:0 0 10px; font-size:14px; color: var(--muted); }
+    .bar { height:10px; border-radius: 999px; background:#0b1a30; overflow:hidden; }
+    .bar > span { display:block; height:100%; width:0%; background: linear-gradient(90deg, var(--accent), #22d3ee); transition: width .3s ease; }
+    .pill { display:flex; align-items:center; gap:10px; justify-content:space-between; padding:10px 12px; background:#0c1a2c; border:1px solid var(--border); border-radius:12px; }
+    .pill strong { font-size:14px; }
+
+    .timer { margin-top:10px; background:#0b1425; border:1px solid var(--border); border-radius:12px; padding:12px; display:grid; gap:6px; }
+    .timer input { width:100%; padding:10px 12px; border-radius:10px; border:1px solid #1b2844; background:#0b1425; color:var(--text); }
+    .timer .count { font-family:"JetBrains Mono", monospace; color:#a8ccff; font-size:12px; }
+
+    /* Content */
+    section.domain { background: var(--bg-elev); border:1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow:hidden; }
+    .domain header { position:relative; top:auto; background: linear-gradient(180deg, #0d1629, #0b1221); border-bottom:1px solid var(--border); }
+    .domain .head { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:16px 18px; }
+    .domain h2 { margin:0; font-size: clamp(18px, 2.5vw, 20px); letter-spacing:.2px; }
+    .badge { font-size:12px; color:#c6d2ff; background:#0d1a2f; border:1px solid #1b2a49; padding:5px 8px; border-radius: 999px; }
+    .head .right { display:flex; align-items:center; gap:12px; }
+    .toggle { border:1px solid var(--border); background:#0c1423; color:#e2eeff; padding:8px 10px; border-radius:9px; cursor:pointer; font-size:12px; }
+
+    .items { padding: 12px 16px 18px; }
+    .item { display:grid; grid-template-columns: auto 1fr auto; align-items:start; gap:12px; padding:12px; border:1px solid var(--border); background:#0d172a; border-radius:12px; margin-bottom:10px; }
+    .state-btn { width:28px; height:28px; display:grid; place-items:center; border-radius:8px; background:#0a1424; border:1px solid #1e2f4f; cursor:pointer; transition: transform .06s ease, border-color .2s ease, background .2s ease; }
+    .state-btn:hover { transform: translateY(-1px); border-color:#2a3e66; }
+    .state-btn[data-state="0"] svg { opacity:.35; }
+    .state-btn[data-state="1"] { background:#1a2845; border-color:#375699; }
+    .state-btn[data-state="2"] { background:#0e2a2a; border-color:#1e5f5f; }
+    .state-legend { display:flex; gap:6px; align-items:center; color: var(--muted); font-size:12px; }
+
+    .item .text { display:flex; flex-direction:column; gap:6px; }
+    .item .text .meta { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid #1a2a49; background: var(--chip); color:#99b7ff; }
+    .chip.hot { border-color:#3b1a49; background:#20102e; color:#e2c6ff; }
+    .chip.tip { border-color:#35422b; background:#132317; color:#b9f6c4; }
+    .chip.lab { border-color:#3b2a1a; background:#23170c; color:#ffd7a8; }
+
+    .tools { display:flex; gap:10px; align-items:center; }
+    .tool-btn { font-size:12px; background:#0b1425; border:1px solid var(--border); color:#cde3ff; padding:8px 10px; border-radius:8px; cursor:pointer; }
+
+    .searchbar {
+      margin: 14px 0 0; display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .searchbar input[type="search"] { flex:1; min-width:240px; padding:12px 12px; border-radius: 10px; border:1px solid #1a2842; background:#0a1322; color:var(--text); }
+    .searchbar .switch { display:flex; align-items:center; gap:8px; }
+    .switch input { appearance:none; width:38px; height:22px; border-radius:999px; background:#13233b; border:1px solid #20314f; position:relative; outline:none; cursor:pointer; }
+    .switch input::after { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#a8ccff; transition:left .18s ease; }
+    .switch input:checked::after { left:18px; }
+    .switch label { font-size:13px; color: var(--muted); }
+
+    .footerbar { position: sticky; bottom:0; background: rgba(11,15,23,.75); backdrop-filter: blur(10px); border-top:1px solid var(--border); }
+    .footerbar .wrap { display:flex; gap:10px; align-items:center; justify-content:space-between; }
+    .footerbar .left, .footerbar .right { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .hint { color: var(--muted); font-size:12px; }
+
+    .hidden { display:none !important; }
+
+    /* Print */
+    @media print {
+      header, .footerbar, aside, .searchbar, .toggle { display:none !important; }
+      body { background:#fff; color:#000; }
+      section.domain { break-inside: avoid; border:1px solid #ccc; }
+      .item { border-color:#ddd; background:#fff; }
+      .chip { border-color:#ccc; background:#f5f5f5; color:#333; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div class="title">
+        <div class="logo" aria-hidden="true">
+          <!-- shield/check icon -->
+          <svg viewBox="0 0 24 24" role="img" aria-label="Logo"><path d="M12 2l7 3v6c0 5-3.3 9.7-7 11-3.7-1.3-7-6-7-11V5l7-3zm-1.2 13.7l6-6-1.4-1.4-4.6 4.6-2.2-2.2-1.4 1.4 3.6 3.6z"/></svg>
+        </div>
+        <div>
+          <h1>CCNA 200-301 (v1.1) – Intensive Checklist</h1>
+          <div class="subtitle">Dark themed knowledge-check app with tri‑state progress, per‑domain bars, search, hot‑spots, and export/import.</div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="control" id="expandAll"><span>Expand all</span></button>
+        <button class="control" id="collapseAll"><span>Collapse all</span></button>
+        <button class="control" id="printBtn" title="Print or Save as PDF"><span>Print / PDF</span></button>
+        <label class="control mod" for="importFile"><span>Import progress</span><input type="file" id="importFile" accept="application/json" /></label>
+        <button class="control" id="exportBtn"><span>Export progress</span></button>
+        <button class="control" id="resetBtn"><span>Reset</span> <span class="kbd">Ctrl+R</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <aside>
+      <div class="stats">
+        <div class="progress">
+          <h3>Total Progress</h3>
+          <div class="bar" aria-label="Overall Progress"><span id="overallBar"></span></div>
+          <div class="state-legend" style="margin-top:8px">
+            <span class="chip" title="0 = Not started">0</span>
+            <span class="chip tip" title="1 = Partial">1</span>
+            <span class="chip hot" title="2 = Confident">2</span>
+          </div>
+        </div>
+        <div id="domainPills"></div>
+        <div class="timer">
+          <label for="examDate">Exam date</label>
+          <input id="examDate" type="date" />
+          <div class="count" id="countdown">Set a date to see countdown…</div>
+        </div>
+      </div>
+    </aside>
+
+    <div>
+      <div class="searchbar wrap-in">
+        <input type="search" id="search" placeholder="Search topics, e.g. OSPF neighbors, NAT pool, PortFast…" aria-label="Search checklist" />
+        <div class="switch"><input type="checkbox" id="onlyHot"/> <label for="onlyHot">Only show Hot Spots</label></div>
+        <div class="switch"><input type="checkbox" id="onlyLabs"/> <label for="onlyLabs">Only show Mini‑labs</label></div>
+      </div>
+
+      <div id="content"></div>
+
+      <div style="height:60px"></div>
+    </div>
+  </main>
+
+  <footer class="footerbar">
+    <div class="wrap">
+      <div class="left hint">Click an item’s square to cycle states: <strong>0</strong> Not started → <strong>1</strong> Partial → <strong>2</strong> Confident. Progress is auto‑saved locally.</div>
+      <div class="right">
+        <button class="tool-btn" id="showAll">Show all</button>
+        <button class="tool-btn" id="hideCompleted">Hide completed</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ========= DATA ========= */
+    const DATA = [
+      {
+        id: 'fundamentals',
+        title: '1) Network Fundamentals',
+        weight: 20,
+        items: [
+          { t: 'Explain roles of routers, L2/L3 switches, NGFW/IPS, APs/controllers, endpoints, servers, PoE.', tag:['topic'] },
+          { t: 'Compare two-tier / three-tier / spine‑leaf / WAN / SOHO / on‑prem vs cloud designs.', tag:['topic'] },
+          { t: 'Cabling selection & interface issues: single‑mode, multi‑mode, copper; duplex/speed/errors.', tag:['topic'] },
+          { t: 'Configure & verify IPv4 addressing/subnetting; identify private ranges.', tag:['topic','hot'] },
+          { t: 'Configure & verify IPv6 addressing; unicast (GUA/ULA/LL), anycast, multicast, EUI‑64.', tag:['topic','hot'] },
+          { t: 'Verify client IP parameters on Windows/macOS/Linux.', tag:['topic'] },
+          { t: 'Describe wireless principles: channels, SSID, RF basics, encryption.', tag:['topic'] },
+          { t: 'Explain server virtualization, containers, VRFs.', tag:['topic'] },
+          { t: 'Switching behavior: MAC learning/aging, flooding, CAM table.', tag:['topic'] },
+          { t: 'VLSM & wildcard math fast: /26, /28, /29 under 60s. (Self‑test).', tag:['hot','tip'] },
+          { t: 'Mini‑lab: Build a /27 and two /29s, assign to three SVIs, verify ping across VLANs.', tag:['lab'] }
+        ]
+      },
+      {
+        id: 'access',
+        title: '2) Network Access',
+        weight: 20,
+        items: [
+          { t: 'Configure & verify VLANs (normal), access (data/voice) ports, default VLAN, inter‑VLAN routing.', tag:['topic','hot'] },
+          { t: 'Configure & verify 802.1Q trunks; choose native VLAN; detect mismatch.', tag:['topic','hot'] },
+          { t: 'Configure & verify CDP/LLDP.', tag:['topic'] },
+          { t: 'Configure & verify EtherChannel (LACP); read show etherchannel summary.', tag:['topic'] },
+          { t: 'STP (Rapid‑PVST+): roles, states, PortFast, root/loop guard, BPDU guard/filter.', tag:['topic','hot'] },
+          { t: 'Wireless: describe Cisco architectures, AP modes; physical connections; LAG.', tag:['topic'] },
+          { t: 'Interpret WLC GUI: create WLAN, set security, QoS, advanced settings.', tag:['topic'] },
+          { t: 'Mini‑lab: Two switches, three VLANs, LACP bundle, custom native VLAN; prove isolation + RoAS.', tag:['lab'] },
+          { t: 'Trick: Edge ports = PortFast + BPDU Guard. Watch for native VLAN mismatch.', tag:['tip','hot'] }
+        ]
+      },
+      {
+        id: 'connectivity',
+        title: '3) IP Connectivity',
+        weight: 25,
+        items: [
+          { t: 'Interpret routing table: codes, prefix/mask, next hop, AD, metric, default route.', tag:['topic'] },
+          { t: 'Path selection order: LPM → AD → metric.', tag:['topic','tip'] },
+          { t: 'Configure & verify IPv4/IPv6 static/default/network/host routes & floating static.', tag:['topic','hot'] },
+          { t: 'OSPFv2 single area: adjacencies, p2p vs broadcast (DR/BDR), router‑ID.', tag:['topic','hot'] },
+          { t: 'OSPF neighbor troubleshooting: masks, network type, RID dup, passive IF.', tag:['tip','hot'] },
+          { t: 'Mini‑lab: 3‑router single area 0, DR/BDR on broadcast, add floating static and test failover.', tag:['lab'] }
+        ]
+      },
+      {
+        id: 'services',
+        title: '4) IP Services',
+        weight: 10,
+        items: [
+          { t: 'Configure & verify inside source NAT (static & pools).', tag:['topic','hot'] },
+          { t: 'Configure & verify NTP client/server.', tag:['topic'] },
+          { t: 'Explain DHCP & DNS; configure DHCP client/relay (ip helper‑address).', tag:['topic','hot'] },
+          { t: 'Explain SNMP and syslog severities (0‑7) and facilities.', tag:['topic'] },
+          { t: 'Configure SSH remote access; describe TFTP/FTP.', tag:['topic'] },
+          { t: 'Explain QoS PHB: classification/marking, queuing, congestion, policing/shaping.', tag:['topic'] },
+          { t: 'Mini‑lab: NAT pool for /27, NTP server, DHCP relay on SVI; verify leases & time sync; watch syslog.', tag:['lab'] }
+        ]
+      },
+      {
+        id: 'security',
+        title: '5) Security Fundamentals',
+        weight: 15,
+        items: [
+          { t: 'Define threats, vulnerabilities, exploits; basic mitigations; security program elements.', tag:['topic'] },
+          { t: 'Configure & verify local device access control (console/VTY), SSH, exec‑timeout.', tag:['topic'] },
+          { t: 'Describe password policies & alternatives (MFA, certs, biometrics).', tag:['topic'] },
+          { t: 'Describe IPsec RA & site‑to‑site VPN concepts.', tag:['topic'] },
+          { t: 'Configure & verify ACLs (std/extended); correct wildcards; placement/direction.', tag:['topic','hot'] },
+          { t: 'Configure & verify L2 security: DHCP snooping, DAI, port‑security.', tag:['topic','hot'] },
+          { t: 'Compare AAA concepts.', tag:['topic'] },
+          { t: 'Describe WPA/WPA2/WPA3; configure WLAN (WPA2‑PSK) in GUI.', tag:['topic'] },
+          { t: 'Trick: Standard ACLs near destination; extended near source (context‑dependent!).', tag:['tip'] },
+          { t: 'Mini‑lab: Users + SSH + AAA (describe), port‑security on access ports, DHCP snooping + DAI to block rogue DHCP.', tag:['lab'] }
+        ]
+      },
+      {
+        id: 'automation',
+        title: '6) Automation & Programmability',
+        weight: 10,
+        items: [
+          { t: 'Explain impact of automation on ops; compare traditional vs controller‑based (overlay/underlay, planes, NB/SB APIs).', tag:['topic'] },
+          { t: 'Explain AI (generative & predictive) and ML in network ops; data sources & outcomes.', tag:['topic','hot'] },
+          { t: 'Describe REST APIs: verbs, auth, payloads, status codes; recognize JSON structure.', tag:['topic','hot'] },
+          { t: 'Recognize Ansible & Terraform for config mgmt and IaC concepts.', tag:['topic'] },
+          { t: 'Mini‑lab: Use curl/Postman to GET/POST mock controller API; parse/modify JSON.', tag:['lab'] }
+        ]
+      },
+      {
+        id: 'habits',
+        title: 'High‑Yield Habits & Tactics (Exam Readiness)',
+        weight: 0,
+        items: [
+          { t: 'Two timed, full‑length practice runs (target ≥ 80%).', tag:['tip','hot'] },
+          { t: 'Daily 30–45 min config reps in Packet Tracer / lab gear.', tag:['tip'] },
+          { t: 'OSPF/VLAN/STP targeted drills; memorize OSPF neighbor states; DR/BDR rules on broadcast.', tag:['tip','hot'] },
+          { t: 'Know syslog severities, NAT verification, DHCP relay (ip helper‑address).', tag:['tip'] },
+          { t: 'Wildcard masks by head (no calculator).', tag:['tip','hot'] }
+        ]
+      }
+    ];
+
+    /* ========= STATE ========= */
+    const KEY = 'ccnaChecklist_v1';
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+    function loadState(){
+      try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; }
+    }
+    function saveState(state){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    let STATE = loadState(); // shape: { [domainId]: { [itemIndex]: 0|1|2 }, examDate: 'YYYY-MM-DD' }
+
+    /* ========= RENDER ========= */
+    const content = document.getElementById('content');
+
+    function iconFor(state){
+      if(state===2) return `<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><path fill='#7eead6' d='M9 16.2l-3.5-3.6-1.4 1.4L9 19 20 8l-1.4-1.4z'/></svg>`;
+      if(state===1) return `<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><path fill='#a8ccff' d='M3 12a9 9 0 1018 0A9 9 0 003 12zm10 0a4 4 0 11-8 0 4 4 0 018 0z'/></svg>`;
+      return `<svg viewBox='0 0 24 24' width='18' height='18' aria-hidden='true'><circle cx='12' cy='12' r='8' fill='none' stroke='#4b5e86' stroke-width='2'/></svg>`;
+    }
+
+    function render(){
+      content.innerHTML = '';
+      DATA.forEach((domain, dIdx) => {
+        const section = document.createElement('section');
+        section.className = 'domain';
+        section.dataset.domain = domain.id;
+
+        // Header
+        const h = document.createElement('div');
+        h.className = 'head';
+        h.innerHTML = `
+          <div><h2>${domain.title}</h2></div>
+          <div class="right">
+            ${domain.weight ? `<span class="badge">Weight: ${domain.weight}%</span>` : ''}
+            <button class="toggle" data-open="true" aria-expanded="true">Collapse</button>
+          </div>`;
+        const header = document.createElement('header');
+        header.appendChild(h);
+
+        // Items
+        const list = document.createElement('div');
+        list.className = 'items';
+
+        const domainState = STATE[domain.id] || {};
+
+        domain.items.forEach((item, iIdx) => {
+          const st = Number(domainState[iIdx] ?? 0);
+          const el = document.createElement('div');
+          el.className = 'item';
+          el.dataset.index = iIdx;
+          el.dataset.tags = (item.tag||[]).join(',');
+
+          const btn = document.createElement('button');
+          btn.className = 'state-btn';
+          btn.setAttribute('role','checkbox');
+          btn.dataset.state = st;
+          btn.innerHTML = iconFor(st);
+          btn.title = 'Click to cycle 0 → 1 → 2';
+          btn.addEventListener('click', () => {
+            const cur = Number(btn.dataset.state);
+            const next = (cur + 1) % 3;
+            btn.dataset.state = next;
+            btn.innerHTML = iconFor(next);
+            btn.setAttribute('aria-checked', next===2 ? 'true' : (next===1 ? 'mixed':'false'));
+            STATE[domain.id] = STATE[domain.id] || {}; STATE[domain.id][iIdx] = next; saveState(STATE);
+            updateBars();
+            applyFilters();
+          });
+
+          const text = document.createElement('div');
+          text.className = 'text';
+          text.innerHTML = `<div>${item.t}</div>`;
+
+          const meta = document.createElement('div'); meta.className = 'meta';
+          (item.tag||[]).forEach(tag => {
+            const chip = document.createElement('span'); chip.className = 'chip ' + (tag==='hot'?'hot':tag==='tip'?'tip':tag==='lab'?'lab':''); chip.textContent = tag==='lab'?'mini‑lab':tag==='hot'?'hot spot':tag; meta.appendChild(chip);
+          });
+          text.appendChild(meta);
+
+          const tools = document.createElement('div'); tools.className = 'tools';
+          const copyBtn = document.createElement('button'); copyBtn.className='tool-btn'; copyBtn.textContent='Copy text'; copyBtn.addEventListener('click',()=>{ navigator.clipboard.writeText(item.t); copyBtn.textContent='Copied!'; setTimeout(()=>copyBtn.textContent='Copy text',900); });
+          tools.appendChild(copyBtn);
+
+          el.appendChild(btn); el.appendChild(text); el.appendChild(tools);
+          list.appendChild(el);
+        });
+
+        section.appendChild(header); section.appendChild(list);
+        content.appendChild(section);
+
+        // toggle open/close
+        const toggle = h.querySelector('.toggle');
+        toggle.addEventListener('click', ()=>{
+          const open = toggle.dataset.open === 'true';
+          toggle.dataset.open = (!open).toString();
+          toggle.textContent = open ? 'Expand' : 'Collapse';
+          list.classList.toggle('hidden', open);
+          toggle.setAttribute('aria-expanded', (!open).toString());
+        });
+      });
+
+      buildDomainPills();
+      updateBars();
+    }
+
+    function countDomain(domainId){
+      const domain = DATA.find(d => d.id===domainId); if(!domain) return {done:0, partial:0, total:0};
+      const ds = STATE[domainId] || {};
+      let done=0, partial=0; domain.items.forEach((_,i)=>{ const v = Number(ds[i]||0); if(v===2) done++; else if(v===1) partial++; });
+      return { done, partial, total: domain.items.length };
+    }
+
+    function fractionToPct(f){ return Math.round(f*100); }
+
+    function updateBars(){
+      // Overall bar
+      let all=0, done=0; DATA.forEach(d=>{ all += d.items.length; const c = countDomain(d.id); done += c.done; });
+      const pct = all? Math.round( (done/all)*100 ):0; $('#overallBar').style.width = pct + '%';
+
+      // Domain pills
+      $$('#domainPills .pill').forEach(p=>{
+        const id = p.dataset.id; const c = countDomain(id);
+        const pcent = c.total? Math.round((c.done/c.total)*100) : 0;
+        p.querySelector('.pct').textContent = pcent + '%';
+      });
+    }
+
+    function buildDomainPills(){
+      const holder = document.getElementById('domainPills'); holder.innerHTML='';
+      DATA.forEach(d=>{
+        const c = countDomain(d.id); const pcent = c.total? Math.round((c.done/c.total)*100) : 0;
+        const div = document.createElement('div'); div.className='pill'; div.dataset.id=d.id;
+        div.innerHTML = `<strong>${d.title.replace(/^\d\)\s/,'')}</strong><span class='pct'>${pcent}%</span>`;
+        div.addEventListener('click', ()=>{
+          const sec = document.querySelector(`[data-domain='${d.id}']`);
+          if(!sec) return; sec.scrollIntoView({behavior:'smooth', block:'start'});
+          // ensure open
+          const toggle = sec.querySelector('.toggle'); const list = sec.querySelector('.items');
+          if(toggle && list && list.classList.contains('hidden')){ toggle.click(); }
+        });
+        holder.appendChild(div);
+      });
+    }
+
+    /* ========= FILTERS ========= */
+    const search = document.getElementById('search');
+    const onlyHot = document.getElementById('onlyHot');
+    const onlyLabs = document.getElementById('onlyLabs');
+    const hideCompleted = document.getElementById('hideCompleted');
+    const showAll = document.getElementById('showAll');
+
+    function applyFilters(){
+      const q = search.value.trim().toLowerCase();
+      const hot = onlyHot.checked; const labs = onlyLabs.checked; const hide = hideCompleted?.dataset?.on === '1';
+
+      $$('.domain').forEach(domain => {
+        let domainHasVisible = false;
+        const items = domain.querySelectorAll('.item');
+        items.forEach(it => {
+          const text = it.querySelector('.text').innerText.toLowerCase();
+          const tags = (it.dataset.tags||'').split(',').filter(Boolean);
+          const state = Number(it.querySelector('.state-btn').dataset.state);
+
+          let visible = true;
+          if(q && !text.includes(q)) visible = false;
+          if(hot && !tags.includes('hot')) visible = false;
+          if(labs && !tags.includes('lab')) visible = false;
+          if(hide && state===2) visible = false;
+
+          it.classList.toggle('hidden', !visible);
+          if(visible) domainHasVisible = true;
+        });
+        domain.classList.toggle('hidden', !domainHasVisible);
+      });
+    }
+
+    search.addEventListener('input', applyFilters);
+    onlyHot.addEventListener('change', applyFilters);
+    onlyLabs.addEventListener('change', applyFilters);
+
+    // Hide completed toggle
+    hideCompleted?.addEventListener?.('click', ()=>{
+      const on = hideCompleted.dataset.on === '1';
+      hideCompleted.dataset.on = on ? '0':'1';
+      hideCompleted.textContent = on ? 'Hide completed' : 'Show completed';
+      applyFilters();
+    });
+    showAll?.addEventListener?.('click', ()=>{
+      search.value=''; onlyHot.checked=false; onlyLabs.checked=false;
+      hideCompleted.dataset.on = '0'; hideCompleted.textContent='Hide completed';
+      applyFilters();
+    });
+
+    /* ========= EXAM DATE ========= */
+    const examDate = document.getElementById('examDate');
+    const countdown = document.getElementById('countdown');
+
+    function updateCountdown(){
+      const v = examDate.value; STATE.examDate = v; saveState(STATE);
+      if(!v){ countdown.textContent = 'Set a date to see countdown…'; return; }
+      const now = new Date(); const target = new Date(v + 'T00:00:00');
+      const diff = target.getTime() - now.getTime();
+      if(diff <= 0) { countdown.textContent = 'Exam day is today or past. Good luck!'; return; }
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      countdown.textContent = `${days} day(s) ${hours} hr(s) to go`;
+    }
+
+    examDate.addEventListener('change', updateCountdown);
+
+    /* ========= ACTION BUTTONS ========= */
+    document.getElementById('expandAll').addEventListener('click', ()=>{
+      $$('.domain .toggle').forEach(btn=>{ if(btn.dataset.open==='false') btn.click(); });
+    });
+    document.getElementById('collapseAll').addEventListener('click', ()=>{
+      $$('.domain .toggle').forEach(btn=>{ if(btn.dataset.open==='true') btn.click(); });
+    });
+    document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      if(confirm('Reset all progress?')){ STATE = { examDate: STATE.examDate }; saveState(STATE); render(); applyFilters(); setTimeout(updateCountdown,10); }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const data = JSON.stringify(STATE, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'ccna-checklist-progress.json'; a.click();
+      setTimeout(()=>URL.revokeObjectURL(url), 500);
+    });
+
+    document.getElementById('importFile').addEventListener('change', (e)=>{
+      const f = e.target.files?.[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { const obj = JSON.parse(reader.result); if(typeof obj === 'object'){ STATE = obj; saveState(STATE); render(); applyFilters(); setTimeout(()=>{ if(STATE.examDate){ examDate.value = STATE.examDate; updateCountdown(); } }, 50); } }
+        catch(err){ alert('Invalid JSON file.'); }
+      };
+      reader.readAsText(f);
+      e.target.value = '';
+    });
+
+    // Keyboard shortcut for reset: Ctrl+R (without overriding browser reload if focused outside)
+    window.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey || e.metaKey) && e.key.toLowerCase()==='r'){
+        if(document.activeElement && ['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return; // allow browser reload
+        e.preventDefault(); document.getElementById('resetBtn').click();
+      }
+    });
+
+    // Initial render
+    render();
+
+    // Restore exam date if present
+    if(STATE.examDate){ examDate.value = STATE.examDate; updateCountdown(); }
+
+    // Apply filters initially
+    applyFilters();
+  </script>
+</body>
+</html>
