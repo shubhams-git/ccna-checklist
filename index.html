@@ -778,6 +778,27 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #475569;
     }
+
+    /* Ensure proper scrolling behavior */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      position: relative;
+    }
+
+    /* Fix for domain header z-index issues */
+    .domain .head {
+      position: relative;
+      z-index: 5;
+    }
+
+    /* Ensure items don't overlap with sticky elements */
+    .items {
+      position: relative;
+      z-index: 1;
+    }
   </style>
 </head>
 <body>
